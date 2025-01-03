@@ -1,38 +1,51 @@
-// components/ProjectDropdown.js
-import Dropdown from "react-bootstrap/Dropdown";
-import DropdownButton from "react-bootstrap/DropdownButton";
+import React, { useState } from "react";
+import { Menu, MenuItem, Button } from "@mui/material";
 
 export default function ProjectDropdown({ onSelectCategory }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (category) => {
+    setAnchorEl(null);
+    if (category !== null) {
+      onSelectCategory(category);
+    }
+  };
+
   return (
-    <DropdownButton
-      id="dropdown-basic-button"
-      title="Select Category"
-      onSelect={onSelectCategory}
-    >
-      <Dropdown.Item
-        eventKey="All"
-        onClick={() => onSelectCategory("")}
+    <div>
+      <Button
+        variant="outlined"
+        onClick={handleOpen}
+        aria-controls={open ? "category-menu" : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? "true" : undefined}
       >
-        All Projects
-      </Dropdown.Item>
-      <Dropdown.Item
-        eventKey="Art-Based Projects"
-        onClick={() => onSelectCategory("Art-Based Projects")}
+        Select Category
+      </Button>
+      <Menu
+        id="category-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={() => handleClose(null)}
       >
-        Art-Based Projects
-      </Dropdown.Item>
-      <Dropdown.Item
-        eventKey="Research Projects"
-        onClick={() => onSelectCategory("Research Projects")}
-      >
-        Research Projects
-      </Dropdown.Item>
-      <Dropdown.Item
-        eventKey="Education and Community Outreach"
-        onClick={() => onSelectCategory("Education and Community Outreach")}
-      >
-        Education and Community Outreach
-      </Dropdown.Item>
-    </DropdownButton>
+        <MenuItem onClick={() => handleClose("")}>All Projects</MenuItem>
+        <MenuItem onClick={() => handleClose("Art-Based Projects")}>
+          Art-Based Projects
+        </MenuItem>
+        <MenuItem onClick={() => handleClose("Research Projects")}>
+          Research Projects
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleClose("Education and Community Outreach")}
+        >
+          Education and Community Outreach
+        </MenuItem>
+      </Menu>
+    </div>
   );
 }

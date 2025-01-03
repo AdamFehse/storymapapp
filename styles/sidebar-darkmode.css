@@ -1,0 +1,7 @@
+/* sidebar-darkmode.css */
+
+body.dark-mode .offcanvas {
+    background-color: #333;
+    color: #fff;
+  }
+  

@@ -1,4 +1,3 @@
-// components/useProjects.js
 import { useState, useEffect } from "react";
 
 export function useProjects() {
@@ -17,7 +16,7 @@ export function useProjects() {
 
   const filterProjects = (category) => {
     if (category === "") {
-      setFilteredProjects(projects); // Show all projects
+      setFilteredProjects(projects); // Reset to all projects
     } else {
       const filtered = projects.filter(
         (project) => project["Project Category"] === category

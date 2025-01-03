@@ -1,0 +1,39 @@
+/* popup-styles.css */
+/* Popup content wrapper styling */
+body.dark-mode .leaflet-popup-content-wrapper {
+    color: #ffffff; /* Text color */
+    background-color: rgb(0, 0, 0);
+}
+
+/* Popup content background */
+body.dark-mode .leaflet-popup-content-wrapper .leaflet-popup-content {
+    background-color: rgb(0, 0, 0); /* Background color */
+}
+
+/* Optional: Ensure popup text is readable and images are not inverted */
+body.dark-mode .leaflet-popup img {
+    filter: none; /* Prevent inversion of popup images */
+    border-radius: 8px; /* Match styling with JavaScript popup styles */
+    margin-bottom: 10px;
+    max-width: 200px;
+    height: auto;
+    display: block;
+    margin: 0 auto; /* Center the image */
+}
+
+/* Optional: Styling for popup close button */
+body.dark-mode .leaflet-popup-close-button {
+    color: #ffffff; /* Ensure close button is visible */
+    text-shadow: none; /* Remove any unwanted shadow */
+}
+
+/* Popup image styling */
+.popup-image {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: block; /* Ensure the image is a block element */
+    margin: 0 auto; /* Center the image */
+}

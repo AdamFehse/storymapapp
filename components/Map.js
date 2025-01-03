@@ -1,11 +1,15 @@
+// components/Map.js
 "use client";
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useState, useRef, useEffect } from "react";
-import OffCanvasSidebar from "../app/OffCanvasSidebar";
 import L from "leaflet";
+import { Button } from "@mui/material";
+import Sidebar from "../app/OffCanvasSidebar";
+import ProjectModal from "../components/ProjectModal";
+import "@/styles/map-darkmode.css";
+import PopupComponent from "../components/PopupComponent";
 
-// Fix default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -15,64 +19,123 @@ L.Icon.Default.mergeOptions({
 });
 
 export default function Map() {
-  const [mapProjects, setMapProjects] = useState([]); // Store projects to display
-  const markerRefs = useRef([]); // Store marker references
+  const [mapProjects, setMapProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const markerRefs = useRef([]);
 
   useEffect(() => {
-    // Fetch projects on mount to initialize map markers
     fetch("https://adamfehse.github.io/storymapapp/storymapdata.json")
       .then((response) => response.json())
-      .then((data) => setMapProjects(data))
+      .then((data) => {
+        setMapProjects(data);
+        setFilteredProjects(data);
+      })
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
   const isValidCoordinate = (latitude, longitude) => {
-    return (
-      !isNaN(latitude) &&
-      !isNaN(longitude) &&
-      latitude >= -90 &&
-      latitude <= 90 &&
-      longitude >= -180 &&
-      longitude <= 180
-    );
+    return !isNaN(latitude) && !isNaN(longitude);
+  };
+
+  const handleModalOpen = (project) => {
+    setSelectedProject(project);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setSelectedProject(null);
+    setModalOpen(false);
+  };
+
+  const handleSidebarToggle = () => {
+    setSidebarOpen((prev) => !prev);
+  };
+
+  const handleCategorySelect = (category) => {
+    if (category === "All" || category === "") {
+      setFilteredProjects(mapProjects);
+    } else {
+      setFilteredProjects(
+        mapProjects.filter(
+          (project) => project["Project Category"] === category
+        )
+      );
+    }
   };
 
   return (
-    <MapContainer
-      center={[31.916004, -110.990274]}
-      zoom={9}
-      style={{ height: "100vh", width: "100%" }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="&copy; OpenStreetMap contributors"
+    <>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleSidebarToggle}
+        style={{
+          position: "absolute",
+          top: "1rem",
+          right: "1rem",
+          zIndex: 1000,
+        }}
+      >
+        Open Sidebar
+      </Button>
+
+      <Sidebar
+        open={sidebarOpen}
+        onClose={handleSidebarToggle}
+        onSelectCategory={handleCategorySelect}
+        projects={mapProjects}
+        filteredProjects={filteredProjects}
+        onFlyTo={(lat, lon, index) => {
+          const marker = markerRefs.current[index];
+          marker?.openPopup();
+        }}
+        onMoreDetails={handleModalOpen}
       />
-      <OffCanvasSidebar
-        setMapProjects={setMapProjects}
-        markerRefs={markerRefs}
-      />
-      {mapProjects
-        .filter((project) =>
-          isValidCoordinate(
-            parseFloat(project.Latitude),
-            parseFloat(project.Longitude)
-          )
-        )
-        .map((project, index) => (
-          <Marker
-            key={`${project["Project Name"]}-${index}`} // Match the same key logic as ProjectList
-            position={[
+
+      <MapContainer
+        center={[31.916004, -110.990274]}
+        zoom={9}
+        style={{ height: "100vh", width: "100%" }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution="&copy; OpenStreetMap contributors"
+        />
+        {filteredProjects
+          .filter((project) =>
+            isValidCoordinate(
               parseFloat(project.Latitude),
-              parseFloat(project.Longitude),
-            ]}
-            ref={(ref) => (markerRefs.current[index] = ref)} // Store the reference
-          >
-            <Popup>
-              <strong>{project["Project Name"]}</strong>
-              <p>{project["DescriptionShort"]}</p>
-            </Popup>
-          </Marker>
-        ))}
-    </MapContainer>
+              parseFloat(project.Longitude)
+            )
+          )
+          .map((project, index) => (
+            <Marker
+              key={project["Project Name"] + index}
+              position={[
+                parseFloat(project.Latitude),
+                parseFloat(project.Longitude),
+              ]}
+              ref={(ref) => (markerRefs.current[index] = ref)}
+            >
+              <Popup>
+                <PopupComponent
+                  project={project}
+                  onMoreDetails={handleModalOpen}
+                />
+              </Popup>
+            </Marker>
+          ))}
+
+      </MapContainer>
+
+      <ProjectModal
+        project={selectedProject}
+        open={modalOpen}
+        onClose={handleModalClose}
+      />
+    </>
   );
 }

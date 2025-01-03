@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "react-bootstrap";
+import "@/styles/toggle-button.css";
 
 export default function DarkModeToggle() {
   const [darkMode, setDarkMode] = useState(false); // Manage dark mode state

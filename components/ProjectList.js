@@ -1,4 +1,6 @@
 export default function ProjectList({ projects, onFlyTo }) {
+  const placeholderImage = "https://via.placeholder.com/50"; // Placeholder image URL
+
   // Filter out invalid projects
   const validProjects = projects.filter(
     (project) =>
@@ -29,10 +31,20 @@ export default function ProjectList({ projects, onFlyTo }) {
             padding: "5px",
             border: "1px solid #ddd",
             borderRadius: "5px",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
           }}
         >
-          <strong>{project["Project Name"]}</strong>
-          <p>{project["DescriptionShort"]}</p>
+          <img
+            src={project.ImageUrl || placeholderImage} // Use placeholder if ImageUrl is missing
+            alt={project["Project Name"]}
+            style={{ width: "50px", height: "50px", borderRadius: "5px" }}
+          />
+          <div>
+            <strong>{project["Project Name"]}</strong>
+            <p>{project["DescriptionShort"]}</p>
+          </div>
         </li>
       ))}
     </ul>
